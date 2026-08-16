@@ -1,6 +1,6 @@
 .pytest_cache/
 __pycache__/
-.venv
-.lock
-.toml
-.html
+.venv/
+poetry.lock
+pyproject.toml
+*.html
