@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime, timezone, timedelta
-from git_survival.features import build_survival_matrix
+from features import build_survival_matrix
 
 def test_build_survival_matrix():
     now = datetime.now(timezone.utc)

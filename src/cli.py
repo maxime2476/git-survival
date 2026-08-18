@@ -2,13 +2,13 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from .extractor import extract_git_history
-from .features import build_survival_matrix
-from .models.kaplan_meier import fit_kaplan_meier
-from .models.cox import fit_cox_model
-from .models.aft import fit_aft_models
-from .visualization import plot_kaplan_meier, plot_forest_cox, plot_stratified_km
-from .report import generate_report
+from extractor import extract_git_history
+from features import build_survival_matrix
+from models.kaplan_meier import fit_kaplan_meier
+from models.cox import fit_cox_model
+from models.aft import fit_aft_models
+from visualization import plot_kaplan_meier, plot_forest_cox, plot_stratified_km
+from report import generate_report
 import os
 import warnings
 
@@ -23,7 +23,8 @@ def analyze(
     threshold: int = typer.Option(90, help="Inactivity window in days to consider a churn event"),
     min_commits: int = typer.Option(2, help="Minimum number of commits to include a contributor"),
     output: str = typer.Option("./report.html", help="Path to save the HTML report"),
-    max_commits: int = typer.Option(None, help="Maximum number of commits to extract (for testing)")
+    max_commits: int = typer.Option(None, help="Maximum number of commits to extract (for testing)"),
+    reference_date: str = typer.Option(None, help="Reference date (YYYY-MM-DD) to calculate churn. Defaults to today.")
 ):
     with Progress(
         SpinnerColumn(),
@@ -44,7 +45,11 @@ def analyze(
         
         # Phase 2: Features
         task_feat = progress.add_task("[cyan]Building survival matrix...", total=None)
-        df_features = build_survival_matrix(df_commits, threshold, min_commits)
+        
+        import pandas as pd
+        ref_dt = pd.to_datetime(reference_date, utc=True) if reference_date else None
+        
+        df_features = build_survival_matrix(df_commits, threshold, min_commits, ref_dt)
         progress.update(task_feat, completed=1)
         
         if df_features.empty:
@@ -59,7 +64,7 @@ def analyze(
         # Phase 3: Modeling
         task_model = progress.add_task("[cyan]Fitting statistical models...", total=None)
         kmf, km_metrics = fit_kaplan_meier(df_features)
-        cph, cox_summary, ph_violation = fit_cox_model(df_features)
+        cph, cox_summary, ph_violation, risk_df = fit_cox_model(df_features)
         aft_info, aft_summary = fit_aft_models(df_features)
         progress.update(task_model, completed=1)
         
@@ -73,7 +78,7 @@ def analyze(
             output, df_features, km_metrics, 
             cox_summary, ph_violation, 
             aft_info, aft_summary,
-            km_plot_b64, cox_plot_b64, strat_plot_b64
+            km_plot_b64, cox_plot_b64, strat_plot_b64, risk_df
         )
         progress.update(task_report, completed=1)
         

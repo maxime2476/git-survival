@@ -1,15 +1,28 @@
 import pandas as pd
 import numpy as np
 
-def build_survival_matrix(df_commits: pd.DataFrame, inactivity_window_days: int = 90, min_contributions: int = 2) -> pd.DataFrame:
+def build_survival_matrix(df_commits: pd.DataFrame, inactivity_window_days: int = 90, min_contributions: int = 2, reference_date: pd.Timestamp = None) -> pd.DataFrame:
     if df_commits.empty:
         return pd.DataFrame()
         
+    # Compute Ownership / Bus Factor Index
+    author_ownership = {}
+    if 'modified_paths' in df_commits.columns:
+        df_files = df_commits[['author_email', 'modified_paths']].explode('modified_paths').dropna(subset=['modified_paths'])
+        if not df_files.empty:
+            file_author_counts = df_files.groupby('modified_paths')['author_email'].nunique()
+            df_files['file_ownership'] = 1.0 / df_files['modified_paths'].map(file_author_counts)
+            author_ownership = df_files.groupby('author_email')['file_ownership'].mean().to_dict()
+    
     # Group by author_email
     grouped = df_commits.groupby('author_email')
     
     features = []
-    end_of_observation = df_commits['timestamp'].max()
+    
+    if reference_date is not None:
+        end_of_observation = reference_date
+    else:
+        end_of_observation = pd.Timestamp.now(tz='UTC')
     
     for email, group in grouped:
         num_commits = len(group)
@@ -51,6 +64,8 @@ def build_survival_matrix(df_commits: pd.DataFrame, inactivity_window_days: int 
         code_dispersion = group['num_dirs'].mean()
         commit_frequency = num_commits / T
         
+        ownership_index = author_ownership.get(email, 1.0)
+        
         features.append({
             'author_email': email,
             'T': float(T),
@@ -61,6 +76,7 @@ def build_survival_matrix(df_commits: pd.DataFrame, inactivity_window_days: int 
             'avg_churn_per_commit': float(avg_churn_per_commit),
             'code_dispersion': float(code_dispersion),
             'commit_frequency': float(commit_frequency),
+            'ownership_index': float(ownership_index),
             'total_commits': int(num_commits)
         })
         

@@ -1,5 +1,5 @@
 import pandas as pd
-from git_survival.models.kaplan_meier import fit_kaplan_meier
+from models.kaplan_meier import fit_kaplan_meier
 
 def test_km_fit():
     df = pd.DataFrame({

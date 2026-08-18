@@ -1,5 +1,5 @@
 import pandas as pd
-from git_survival.extractor import is_bot
+from extractor import is_bot
 
 def test_is_bot():
     assert is_bot("Dependabot", "support@github.com") == True

@@ -33,7 +33,7 @@ TEMPLATE = """
 
     <h2>2. Global Survival Analysis (Kaplan-Meier)</h2>
     <div class="plot-container">
-        <img src="data:image/png;base64,{{ km_plot }}" alt="Kaplan Meier Plot">
+        {{ km_plot }}
     </div>
 
     <h2>3. Contributor Risk Factors (Cox PH Model)</h2>
@@ -44,13 +44,21 @@ TEMPLATE = """
     {% if cox_summary_html %}
         {{ cox_summary_html }}
         <div class="plot-container">
-            <img src="data:image/png;base64,{{ cox_plot }}" alt="Cox Forest Plot">
+            {{ cox_plot }}
         </div>
     {% else %}
         <p>Cox model could not be fitted.</p>
     {% endif %}
 
-    <h2>4. Accelerated Failure Time Models (AFT)</h2>
+    <h2>4. At-Risk Contributors (Imminent Churn Prediction)</h2>
+    <p>Based on the Cox model, here are the most active contributors with the highest risk of imminent churn:</p>
+    {% if risk_html %}
+        {{ risk_html }}
+    {% else %}
+        <p>No active contributors found or risk prediction failed.</p>
+    {% endif %}
+
+    <h2>5. Accelerated Failure Time Models (AFT)</h2>
     <p>Best Model selected by AIC: <strong>{{ aft_best_model }}</strong></p>
     {% if aft_summary_html %}
         {{ aft_summary_html }}
@@ -59,7 +67,7 @@ TEMPLATE = """
     <h2>5. Stratified Analysis</h2>
     {% if stratified_plot %}
     <div class="plot-container">
-        <img src="data:image/png;base64,{{ stratified_plot }}" alt="Stratified Plot">
+        {{ stratified_plot }}
     </div>
     {% else %}
     <p>Not enough data to stratify by weekend contribution.</p>
@@ -78,7 +86,8 @@ def generate_report(
     aft_summary: pd.DataFrame,
     km_plot_b64: str,
     cox_plot_b64: str,
-    stratified_plot_b64: str
+    stratified_plot_b64: str,
+    risk_df: pd.DataFrame
 ):
     total = len(df_features)
     churn = int(df_features['E'].sum()) if total > 0 else 0
@@ -93,6 +102,7 @@ def generate_report(
     # Format tables
     cox_html = cox_summary.to_html(classes='table') if not cox_summary.empty else ""
     aft_html = aft_summary.to_html(classes='table') if not aft_summary.empty else ""
+    risk_html = risk_df.to_html(classes='table', index=False) if not risk_df.empty else ""
     
     template = Template(TEMPLATE)
     html = template.render(
@@ -105,6 +115,7 @@ def generate_report(
         cox_summary_html=cox_html,
         cox_plot=cox_plot_b64,
         ph_violation=ph_violation,
+        risk_html=risk_html,
         aft_best_model=aft_info.get('best_model', 'N/A'),
         aft_summary_html=aft_html,
         stratified_plot=stratified_plot_b64

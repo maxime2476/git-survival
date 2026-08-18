@@ -4,3 +4,4 @@ __pycache__/
 poetry.lock
 pyproject.toml
 *.html
+.git_survival_cache_*.pkl
