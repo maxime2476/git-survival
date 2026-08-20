@@ -13,7 +13,11 @@ Ici, le "patient" c'est un développeur, et "l'événement" (le décès) c'est l
 L'outil se base sur la librairie `lifelines` et implémente 3 méthodes différentes :
 
 1. **Kaplan-Meier :** C'est une courbe très visuelle qui donne la probabilité globale de rétention au fil du temps. Par exemple : "après 100 jours, 60% des développeurs contribuent encore".
-2. **Modèle de Cox (Proportional Hazards) :** C'est un modèle de régression multivariée. Ça permet d'isoler l'impact de certaines habitudes (ex: coder la nuit, travailler sur des fichiers que personne d'autre ne touche, etc.) sur le risque de départ. Le modèle renvoie des "Hazard Ratios" pour chaque variable.
+2. **Modèle de Cox (Proportional Hazards) :** C'est un modèle de régression multivariée. Ça permet d'isoler l'impact de certaines habitudes sur le risque de départ. Le modèle renvoie des "Hazard Ratios" pour chaque variable. J'analyse pas mal de trucs :
+   - Horaires (ratio de commits la nuit/le week-end)
+   - "Bus Factor" (est-ce qu'il est seul à toucher ses fichiers ?)
+   - NLP / Sentiment (analyse des messages de commit avec TextBlob)
+   - Contagion (est-ce que ses collègues proches ont déjà abandonné le projet ?)
 3. **Modèle AFT (Accelerated Failure Time) :** Contrairement à Cox qui étudie le "risque", l'AFT modélise directement le temps qu'il reste. J'ai configuré l'outil pour qu'il teste plusieurs lois de probabilité (Weibull, Log-Normal) et choisisse la meilleure.
 
 L'outil intègre aussi un petit algorithme de détection des départs imminents (pour lister les contributeurs actifs actuels qui ont le plus gros risque de bientôt décrocher).

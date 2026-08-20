@@ -1,0 +1,32 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "git-survival"
+version = "0.1.0"
+description = "Survival Analysis for Git Contributor Churn"
+authors = ["Antigravity <antigravity@google.com>"]
+readme = "README.md"
+packages = [{include = "*", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+pydriller = "^2.6.0"
+pandas = "^2.1.0"
+numpy = "^1.24.0"
+lifelines = "^0.30.0"
+typer = {extras = ["all"], version = "^0.12.0"}
+click = "<8.1.8"
+rich = "^13.0.0"
+matplotlib = "^3.7.0"
+plotly = "^5.15.0"
+jinja2 = "^3.1.0"
+textblob = "^0.17.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+mypy = "^1.5.0"
+
+[tool.poetry.scripts]
+git-survival = "cli:app"

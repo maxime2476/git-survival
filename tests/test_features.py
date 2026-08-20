@@ -18,7 +18,9 @@ def test_build_survival_matrix():
             'files_modified': 2,
             'is_fix': 1,
             'is_feat': 0,
-            'num_dirs': 1
+            'num_dirs': 1,
+            'sentiment_score': 0.1,
+            'modified_paths': ['file1.py', 'file2.py']
         })
         
     # Contributor 2: Active (last commit 10 days ago)
@@ -33,7 +35,9 @@ def test_build_survival_matrix():
             'files_modified': 1,
             'is_fix': 0,
             'is_feat': 1,
-            'num_dirs': 1
+            'num_dirs': 1,
+            'sentiment_score': -0.2,
+            'modified_paths': ['file2.py']
         })
         
     df = pd.DataFrame(commits)

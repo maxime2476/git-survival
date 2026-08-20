@@ -7,7 +7,7 @@ import warnings
 def fit_cox_model(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.DataFrame, bool, pd.DataFrame]:
     # Select columns
     cols = ['T', 'E', 'night_commit_ratio', 'weekend_ratio', 'fix_vs_feat_ratio', 
-            'avg_churn_per_commit', 'code_dispersion', 'commit_frequency', 'ownership_index']
+            'avg_churn_per_commit', 'code_dispersion', 'commit_frequency', 'avg_sentiment', 'ownership_index', 'contagion_score']
     
     df_model = df[cols].copy()
     

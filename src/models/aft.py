@@ -4,7 +4,7 @@ from typing import Dict, Any, Tuple
 
 def fit_aft_models(df: pd.DataFrame) -> Tuple[Dict[str, Any], pd.DataFrame]:
     cols = ['T', 'E', 'night_commit_ratio', 'weekend_ratio', 'fix_vs_feat_ratio', 
-            'avg_churn_per_commit', 'code_dispersion', 'commit_frequency', 'ownership_index']
+            'avg_churn_per_commit', 'code_dispersion', 'commit_frequency', 'avg_sentiment', 'ownership_index', 'contagion_score']
     df_model = df[cols].copy()
     
     # Standardize continuous covariates to help convergence with penalizer

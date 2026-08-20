@@ -3,6 +3,7 @@ from typing import Optional, List, Dict, Any
 from pydriller import Repository
 from datetime import datetime, timezone
 import re
+from textblob import TextBlob
 
 BOT_PATTERNS = [
     r'bot', r'dependabot', r'renovate', r'github-actions', 
@@ -75,6 +76,9 @@ def extract_git_history(repo_path_or_url: str, max_commits: Optional[int] = None
         # Time processing
         dt_utc = commit.author_date.astimezone(timezone.utc)
         
+        # Text analysis
+        sentiment = TextBlob(commit.msg).sentiment.polarity
+        
         commits_data.append({
             'hash': commit.hash,
             'author_name': commit.author.name,
@@ -88,7 +92,8 @@ def extract_git_history(repo_path_or_url: str, max_commits: Optional[int] = None
             'is_fix': is_fix,
             'is_feat': is_feat,
             'num_dirs': len(modified_dirs),
-            'modified_paths': list(modified_paths)
+            'modified_paths': list(modified_paths),
+            'sentiment_score': sentiment
         })
         count += 1
         
