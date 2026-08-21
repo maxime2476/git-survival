@@ -94,7 +94,20 @@ def analyze(
     table.add_row("Proportional Hazards Violation", str(ph_violation))
     
     console.print(table)
-    console.print(f"\n[green]Report successfully generated at: {os.path.abspath(output)}[/green]")
+    console.print(f"\n[bold green]Report successfully generated at: [/bold green]\n{os.path.abspath(output)}")
+
+    # Write to GITHUB_STEP_SUMMARY if running in GitHub Actions
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+            f.write("# 📊 Git Survival Analysis\n\n")
+            f.write(f"Analyzed **{len(df_features)}** contributors. Observed **{int(df_features['E'].sum())}** churn events.\n\n")
+            if not risk_df.empty:
+                f.write("### ⚠️ At-Risk Contributors\n")
+                f.write(risk_df.to_markdown(index=False))
+                f.write("\n\n")
+            else:
+                f.write("### ✅ No active contributors currently at risk.\n\n")
+            f.write(f"Download the full HTML report from the artifact for detailed survival curves and metrics.")
 
 if __name__ == "__main__":
     app()
