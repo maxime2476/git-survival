@@ -27,7 +27,13 @@ L'outil intègre aussi un petit algorithme de détection des départs imminents 
 Il faut installer les dépendances avec uv (pandas, pydriller, lifelines, plotly...) et ensuite lancer le script sur un repo local ou une URL :
 
 ```bash
-uv run python -m cli /chemin/vers/le/repo --output rapport.html
+uv run python -m cli analyze /chemin/vers/le/repo --output rapport.html
+```
+
+Ou lancer le nouveau **Dashboard interactif (Streamlit)** :
+
+```bash
+uv run python -m cli dashboard
 ```
 
 J'ai ajouté un système de cache pour éviter de re-parser tout l'historique si on relance l'outil deux fois d'affilée. Le rapport généré est une page HTML standalone avec des graphiques interactifs (Plotly).

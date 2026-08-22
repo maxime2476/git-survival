@@ -2,7 +2,10 @@ import pandas as pd
 from lifelines import KaplanMeierFitter, CoxPHFitter
 import plotly.graph_objects as go
 
-def plot_kaplan_meier(kmf: KaplanMeierFitter) -> str:
+def plot_kaplan_meier(kmf: KaplanMeierFitter) -> go.Figure:
+    if not hasattr(kmf, 'survival_function_'):
+        return None
+        
     fig = go.Figure()
     
     surv_df = kmf.survival_function_
@@ -28,9 +31,12 @@ def plot_kaplan_meier(kmf: KaplanMeierFitter) -> str:
     fig.update_layout(title="Kaplan-Meier Survival Curve (Global)", 
                       xaxis_title="Days", 
                       yaxis_title="Survival Probability (Retention)")
-    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return fig
 
-def plot_forest_cox(cph: CoxPHFitter) -> str:
+def plot_forest_cox(cph: CoxPHFitter) -> go.Figure:
+    if not hasattr(cph, 'summary') or cph.summary.empty:
+        return None
+        
     summary = cph.summary
     fig = go.Figure()
     
@@ -53,9 +59,9 @@ def plot_forest_cox(cph: CoxPHFitter) -> str:
     fig.update_layout(title="Forest Plot - Cox Proportional Hazards (Hazard Ratios)",
                       xaxis_title="Hazard Ratio (log scale)",
                       xaxis_type="log")
-    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return fig
 
-def plot_stratified_km(df: pd.DataFrame) -> str:
+def plot_stratified_km(df: pd.DataFrame) -> go.Figure:
     fig = go.Figure()
     kmf = KaplanMeierFitter()
     
@@ -81,6 +87,6 @@ def plot_stratified_km(df: pd.DataFrame) -> str:
                               yaxis_title="Retention")
     
     if len(fig.data) == 0:
-        return ""
+        return None
         
-    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return fig

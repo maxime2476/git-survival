@@ -70,9 +70,13 @@ def analyze(
         
         # Phase 4: Visualization & Report
         task_report = progress.add_task("[cyan]Generating report...", total=None)
-        km_plot_b64 = plot_kaplan_meier(kmf) if kmf else ""
-        cox_plot_b64 = plot_forest_cox(cph) if not cox_summary.empty else ""
-        strat_plot_b64 = plot_stratified_km(df_features)
+        km_fig = plot_kaplan_meier(kmf)
+        cox_fig = plot_forest_cox(cph)
+        strat_fig = plot_stratified_km(df_features)
+        
+        km_plot_b64 = km_fig.to_html(full_html=False, include_plotlyjs='cdn') if km_fig else ""
+        cox_plot_b64 = cox_fig.to_html(full_html=False, include_plotlyjs='cdn') if cox_fig else ""
+        strat_plot_b64 = strat_fig.to_html(full_html=False, include_plotlyjs='cdn') if strat_fig else ""
         
         generate_report(
             output, df_features, km_metrics, 
@@ -108,6 +112,13 @@ def analyze(
             else:
                 f.write("### ✅ No active contributors currently at risk.\n\n")
             f.write(f"Download the full HTML report from the artifact for detailed survival curves and metrics.")
+
+@app.command()
+def dashboard():
+    """Launch the interactive Streamlit Dashboard."""
+    dashboard_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dashboard.py")
+    console.print(f"[bold green]Launching Streamlit Dashboard from {dashboard_path}...[/bold green]")
+    os.system(f"streamlit run {dashboard_path}")
 
 if __name__ == "__main__":
     app()
