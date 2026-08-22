@@ -64,7 +64,7 @@ def analyze(
         # Phase 3: Modeling
         task_model = progress.add_task("[cyan]Fitting statistical models...", total=None)
         kmf, km_metrics = fit_kaplan_meier(df_features)
-        cph, cox_summary, ph_violation, risk_df = fit_cox_model(df_features)
+        cph, cox_summary, ph_violation, risk_df, df_model = fit_cox_model(df_features)
         aft_info, aft_summary = fit_aft_models(df_features)
         progress.update(task_model, completed=1)
         

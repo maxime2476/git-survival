@@ -4,7 +4,7 @@ from lifelines.statistics import proportional_hazard_test
 from typing import Dict, Any, Tuple
 import warnings
 
-def fit_cox_model(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.DataFrame, bool, pd.DataFrame]:
+def fit_cox_model(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.DataFrame, bool, pd.DataFrame, pd.DataFrame]:
     # Select columns
     cols = ['T', 'E', 'night_commit_ratio', 'weekend_ratio', 'fix_vs_feat_ratio', 
             'avg_churn_per_commit', 'code_dispersion', 'commit_frequency', 'avg_sentiment', 'ownership_index', 'contagion_score']
@@ -25,7 +25,7 @@ def fit_cox_model(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.DataFrame, bool, pd
         cph.fit(df_model, duration_col='T', event_col='E')
     except Exception as e:
         warnings.warn(f"Cox model failed to converge: {e}")
-        return cph, pd.DataFrame(), False, pd.DataFrame()
+        return cph, pd.DataFrame(), False, pd.DataFrame(), df_model
         
     summary = cph.summary[['coef', 'exp(coef)', 'p', 'coef lower 95%', 'coef upper 95%']].copy()
     summary.rename(columns={'exp(coef)': 'hazard_ratio'}, inplace=True)
@@ -55,4 +55,4 @@ def fit_cox_model(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.DataFrame, bool, pd
         except Exception as e:
             warnings.warn(f"Failed to predict churn risk: {e}")
             
-    return cph, summary, ph_violation, risk_df
+    return cph, summary, ph_violation, risk_df, df_model
